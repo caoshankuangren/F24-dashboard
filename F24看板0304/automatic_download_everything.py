@@ -131,7 +131,7 @@ def export_contacts_match(exportation_contact_url, batch_id, session, cookies):
     export_contacts_response = session.get(f'{exportation_contact_url}/export_with_contacts?format=json&batch={batch_id}&page=1', headers=contact_match_headers, params=contact_params, cookies=cookies)
     print("contacts match csv export status: ", export_contacts_response.status_code)
     
-def export_application(exportation_application_url, base_url, session, cookies):
+def export_application(exportation_application_url, base_url, session, cookies,batch_id):
     exportation_apply_page= session.get(exportation_application_url)
     exportation_apply_soup = BeautifulSoup(exportation_apply_page.text, 'html.parser')
     exportation_apply_token = exportation_apply_soup.select_one('meta[name=csrf-token]').get('content')
@@ -148,7 +148,7 @@ def export_application(exportation_application_url, base_url, session, cookies):
 
     apply_keys_payload = {
       'columns': json.dumps(["apply.applications.url", "birthday", "created_at","submitted_at","apply.questions.names.application_introducer","apply.questions.names.main_founder_career_stage","apply.questions.names.product_introduction","apply.questions.names.product_name", "apply.founder_questions.names.founder_education", "apply.founder_questions.names.founder_technical_background", "apply.founder_questions.names.founder_work_experience"]),
-      'queries': json.dumps({'batch': '11', 'status': 'submitted'}),
+      'queries': json.dumps({'batch': batch_id, 'status': 'submitted'}),
       'authenticity_token': exportation_apply_token
     }
     exportation_apply_response = session.post(url, headers=exporation_apply_headers, data=apply_keys_payload, cookies=cookies)
@@ -217,16 +217,17 @@ def full_file_download_sequence(
         exportation_url, 
         exportation_contact_url,
         exportation_application_url,
-        history_export_url
+        history_export_url,
+        csv_name
     ):
     full_download_sessions = requests.Session() # start session
     cookies = get_login_cookies(base_url, login_url, full_download_sessions) # get cookies
     export_contacts_match(exportation_contact_url, batch_id, full_download_sessions, cookies)
     time.sleep(50)
-    export_application(exportation_application_url, base_url, full_download_sessions, cookies)
+    export_application(exportation_application_url, base_url, full_download_sessions, cookies,batch_id)
     download_all_contact(group_info_url, contacts_download, batch_id, full_download_sessions, cookies)
     link_contacts, link_apps = wait_for_export_links(history_export_url, base_url, full_download_sessions, cookies)
     time.sleep(20)
-    download_from_link(link_contacts, full_download_sessions, cookies, "每日数据/人脉匹配名单.csv")
-    download_from_link(link_apps, full_download_sessions, cookies, "每日数据/自定义导出.csv")
+    download_from_link(link_contacts, full_download_sessions, cookies, csv_name[0])
+    download_from_link(link_apps, full_download_sessions, cookies, csv_name[1])
 

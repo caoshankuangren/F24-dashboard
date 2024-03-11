@@ -33,7 +33,6 @@ for sub_id in ['WU9HZB','z8iap0','2vWoH4']:
     download_export(file_token,current_folder)
 
 
-batch_id = 11
 base_url = 'https://apply.miracleplus.com'
 group_info_url = f"{base_url}/admin/contact_statistics/groups"
 login_url = f"{base_url}/users/sign_in"
@@ -46,6 +45,8 @@ history_export_url = f"{base_url}/export_history"
 #下载线索
 process_clue()
 
+batch_id = 11
+csv_name = ["每日数据/S24人脉匹配名单.csv","每日数据/S24自定义导出.csv"]
 full_file_download_sequence(
     batch_id, 
     base_url, 
@@ -55,11 +56,29 @@ full_file_download_sequence(
     exportation_url, 
     exportation_contact_url,
     exportation_application_url,
-    history_export_url
+    history_export_url,
+    csv_name
 )
 time.sleep(1)
 
-process_data(start_date ='2024-01-13')
+batch_id = 12
+csv_name = ["每日数据/F24人脉匹配名单.csv","每日数据/F24自定义导出.csv"]
+full_file_download_sequence(
+    batch_id, 
+    base_url, 
+    group_info_url,  
+    login_url,
+    contacts_download,
+    exportation_url, 
+    exportation_contact_url,
+    exportation_application_url,
+    history_export_url,
+    csv_name
+)
+time.sleep(1)
+
+
+process_data(start_date ='2024-01-13') #在这里面把两期的数据合并了
 
 high_quality_match()
 

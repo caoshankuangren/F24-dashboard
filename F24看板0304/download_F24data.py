@@ -2,7 +2,7 @@ import pandas as pd
 from datetime import date,timedelta,datetime
 import pandas as pd
 import os
-
+import xlsxwriter
 def process_data(start_date ='2024-01-13'):
     end_date = datetime.today().strftime('%Y-%m-%d')
 
@@ -25,6 +25,15 @@ def process_data(start_date ='2024-01-13'):
                 all_dfs.append(df)
         return pd.concat(all_dfs)
 
+    #将S24，F24两期数据合并
+    df1 = pd.read_csv('./每日数据/F24人脉匹配名单.csv')
+    df2 = pd.read_csv('./每日数据/S24人脉匹配名单.csv')
+    merged_df = pd.concat([df1, df2])# 将合并后的 DataFrame 写入新的 CSV 文件
+    merged_df.to_csv('./每日数据/人脉匹配名单.csv', index=False)
+    df1 = pd.read_csv('./每日数据/F24自定义导出.csv')
+    df2 = pd.read_csv('./每日数据/S24自定义导出.csv')
+    merged_df = pd.concat([df1, df2])# 将合并后的 DataFrame 写入新的 CSV 文件
+    merged_df.to_csv('./每日数据/自定义导出.csv', index=False)
     
     contacts_match = pd.read_csv('./每日数据/人脉匹配名单.csv')
     apply_detail = pd.read_csv('./每日数据/自定义导出.csv')
@@ -62,7 +71,7 @@ def process_data(start_date ='2024-01-13'):
     application_with2_intern.to_excel('./输出结果/重复人脉记录表.xlsx',index=False)
     # 输出处理后的结果
     submit_detail = submit_detail[['产品名称','申请人&创始人','链接','开表时间','提交时间','推荐人','产品介绍','创始人画像','姓名', '教育经历 - 第一创始人','工作经历 - 第一创始人','是否技术型 - 第一创始人','年龄 - 第一创始人']]
-    submit_detail.to_excel('./下载数据/提交明细.xlsx',index=False)
+    submit_detail.to_excel('./下载数据/提交明细.xlsx',engine='xlsxwriter',index=False)
     print('生成提交明细...')
 
     # 文件夹路径
